@@ -1,4 +1,58 @@
-const pico = {
+class Pico {
+  constructor(ctx, cascadeUrl) {
+    this.ctx = ctx;
+    this.cascadeUrl = cascadeUrl;
+  }
+
+  init() {
+    this.update_memory = this.instantiate_detection_memory(5);
+    this.faceFinder_classify_region = () => -1.0;
+
+    fetch(this.cascadeUrl).then((response) => {
+      response.arrayBuffer()
+        .then((buffer) => {
+          const bytes = new Int8Array(buffer);
+          this.faceFinder_classify_region = this.unpack_cascade(bytes);
+          console.log('* cascade loaded');
+        })
+        .catch((e) => console.log(e));
+    });
+
+    return this;
+  }
+
+  detect() {
+    const rgba = this.ctx.getImageData(0, 0, 640, 480).data;
+    const image = {
+      'pixels': this.rgba_to_grayscale(rgba, 480, 640),
+      'nrows': 480,
+      'ncols': 640,
+      'ldim': 640
+    };
+    const params = {
+      'shiftfactor': 0.1,
+      'minsize': 100,
+      'maxsize': 1000,
+      'scalefactor': 1.1
+    };
+
+    let detections = this.run_cascade(image, this.faceFinder_classify_region, params);
+    detections = this.update_memory(detections);
+    detections = this.cluster_detections(detections, 0.2);
+
+    return detections;
+  }
+
+  rgba_to_grayscale(rgba, nRows, nCols) {
+    const gray = new Uint8Array(nRows * nCols);
+    for (let r = 0; r < nRows; ++r) {
+      for (let c = 0; c < nCols; ++c) {
+        gray[r * nCols + c] = (2 * rgba[r * 4 * nCols + 4 * c] + 7 * rgba[r * 4 * nCols + 4 * c + 1] + 1 * rgba[r * 4 * nCols + 4 * c + 2]) / 10;
+      }
+    }
+    return gray;
+  }
+
   unpack_cascade(bytes) {
     //
     const dview = new DataView(new ArrayBuffer(4));
@@ -10,13 +64,13 @@ const pico = {
     /*
       read the depth (size) of each tree first: a 32-bit signed integer
     */
-    dview.setUint8(0, bytes[p + 0]), dview.setUint8(1, bytes[p + 1]), dview.setUint8(2, bytes[p + 2]), dview.setUint8(3, bytes[p + 3]);
+    dview.setUint8(0, bytes[p]), dview.setUint8(1, bytes[p + 1]), dview.setUint8(2, bytes[p + 2]), dview.setUint8(3, bytes[p + 3]);
     const tdepth = dview.getInt32(0, true);
     p = p + 4;
     /*
       next, read the number of trees in the cascade: another 32-bit signed integer
     */
-    dview.setUint8(0, bytes[p + 0]), dview.setUint8(1, bytes[p + 1]), dview.setUint8(2, bytes[p + 2]), dview.setUint8(3, bytes[p + 3]);
+    dview.setUint8(0, bytes[p]), dview.setUint8(1, bytes[p + 1]), dview.setUint8(2, bytes[p + 2]), dview.setUint8(3, bytes[p + 3]);
     const ntrees = dview.getInt32(0, true);
     p = p + 4;
     /*
@@ -59,7 +113,7 @@ const pico = {
         let idx = 1;
         for (let j = 0; j < tdepth; ++j)
           // we use '>> 8' here to perform an integer division: this seems important for performance
-          idx = 2 * idx + (pixels[((r + tcodes[root + 4 * idx + 0] * s) >> 8) * ldim + ((c + tcodes[root + 4 * idx + 1] * s) >> 8)] <= pixels[((r + tcodes[root + 4 * idx + 2] * s) >> 8) * ldim + ((c + tcodes[root + 4 * idx + 3] * s) >> 8)]);
+          idx = 2 * idx + (pixels[((r + tcodes[root + 4 * idx] * s) >> 8) * ldim + ((c + tcodes[root + 4 * idx + 1] * s) >> 8)] <= pixels[((r + tcodes[root + 4 * idx + 2] * s) >> 8) * ldim + ((c + tcodes[root + 4 * idx + 3] * s) >> 8)]);
 
         o = o + tpreds[pow2tdepth * i + idx - pow2tdepth];
 
@@ -75,7 +129,7 @@ const pico = {
       we're done
     */
     return classify_region;
-  },
+  }
 
   run_cascade(image, classify_region, params) {
     const pixels = image.pixels;
@@ -106,7 +160,7 @@ const pico = {
     }
 
     return detections;
-  },
+  }
 
   cluster_detections(dets, iouthreshold) {
     /*
@@ -156,7 +210,7 @@ const pico = {
     }
 
     return clusters;
-  },
+  }
 
   instantiate_detection_memory(size) {
     /*
@@ -184,6 +238,6 @@ const pico = {
 
     return update_memory;
   }
-};
+}
 
-export default pico;
+export default Pico;

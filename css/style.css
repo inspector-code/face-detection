@@ -5,15 +5,13 @@ canvas {
 video {
   transform: scale(-1, 1); }
 
-body {
+#face-detector {
+  position: relative;
   display: flex;
-  align-items: center;
-  flex-direction: column; }
+  justify-content: center;
+  align-items: center; }
 
-.container {
-  position: relative; }
-
-.videoMask {
+#videoMask {
   position: absolute;
   width: 250px;
   height: 320px;
@@ -23,20 +21,27 @@ body {
   border-radius: 420px/320px;
   border: 4px dotted #7e53b9;
   z-index: 1000; }
-
-.videoMask:before {
-  content: url(../img/regula.png);
-  display: block;
-  position: absolute;
-  top: -70px;
-  left: -180px;
-  font-weight: bold;
-  color: #7e53b9; }
-
-.videoMask:after {
-  content: 'Put your face into the frame';
-  position: absolute;
-  top: -30px;
-  right: 30px;
-  font-weight: bold;
-  color: #7e53b9; }
+  #videoMask p {
+    text-align: center;
+    position: absolute;
+    top: 102%;
+    left: 50%;
+    transform: translate(-50%);
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #7e53b9; }
+  #videoMask:before {
+    content: url(../img/regula.png);
+    display: block;
+    position: absolute;
+    top: -70px;
+    left: -180px;
+    font-weight: bold;
+    color: #7e53b9; }
+  #videoMask:after {
+    content: 'Put your face into the frame';
+    position: absolute;
+    top: -30px;
+    right: 30px;
+    font-weight: bold;
+    color: #7e53b9; }
