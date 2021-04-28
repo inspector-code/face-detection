@@ -10,7 +10,6 @@ class Stream {
     this.video.setAttribute('width', '640');
     this.video.setAttribute('height', '480');
     this.parentNode.prepend(this.video);
-    this.raf = null;
     this.mask = document.createElement('div');
     this.mask.id = 'videoMask';
     this.parentNode.prepend(this.mask);
@@ -22,23 +21,26 @@ class Stream {
     this.startButton.innerText = 'Try again';
     this.parentNode.append(this.startButton);
     this.startButton.onclick = () => this.startStream();
-    window.stream = this;
+    this.raf = null;
   }
 
   update = () => {
-    const loop = () => {
-      this.processFn(this.video);
-      this.raf = requestAnimationFrame(loop);
-    };
-    this.raf = requestAnimationFrame(loop);
+    if (this.faceDetector.isCaptured) {
+      cancelAnimationFrame(this.raf);
+      this.stopStream();
+      return;
+    }
+    this.ctx.drawImage(this.video, 0, 0);
+    this.faceDetector.detectFace(this.pico.detect());
+    this.raf = requestAnimationFrame(this.update);
   };
 
   stopStream() {
-    cancelAnimationFrame(this.raf);
     this.video.srcObject.getTracks().forEach((track) => track.stop());
     [this.video, this.mask, this.logo].forEach((el) => {
       el.style.display = 'none';
     });
+    this.faceDetector.tips.innerText = '';
     this.startButton.style.display = 'inline-flex';
   }
 
@@ -53,16 +55,11 @@ class Stream {
     navigator.mediaDevices.getUserMedia({ video: true, audio: false })
       .then((stream) => {
         this.video.srcObject = stream;
-        this.update();
+        setTimeout(() => {
+          this.pico.init();
+          this.raf = requestAnimationFrame(this.update);
+        }, 1000)
       });
-  }
-
-  processFn() {
-    this.ctx.drawImage(this.video, 0, 0);
-    this.faceDetector.detectFace(this.pico.detect());
-    if (this.faceDetector.isCaptured) {
-      this.stopStream();
-    }
   }
 }
 

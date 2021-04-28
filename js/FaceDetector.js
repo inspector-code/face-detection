@@ -16,7 +16,7 @@ class FaceDetector {
       const d = r * 2;
 
       if (detections[i][3] > 50.0) {
-        const isCentered = (x > 315) && (x < 325) && (y > 260) && (y < 270);
+        const isCentered = (x > 314) && (x < 326) && (y > 259) && (y < 271);
         const normalSize = (d > 267) && (d < 273);
         const smallSize = d < 267;
         const bigSize = d > 273;
@@ -26,12 +26,11 @@ class FaceDetector {
             this.isCaptured = true;
             const dataUrl = this.canvas.toDataURL();
             this.createImg(dataUrl);
-            this.tips.innerHTML = '';
           }
         }
 
         if (isCentered && bigSize) {
-          this.tips.innerText = `Move away`;
+          this.tips.innerText = `Move far away`;
         }
 
         if (isCentered && smallSize) {
@@ -49,8 +48,7 @@ class FaceDetector {
     const img = document.createElement('img');
     img.src = data;
     img.id = 'screenshot';
-    img.style.transform = 'scale(-1, 1)';
-    document.body.append(img);
+    document.body.prepend(img);
   }
 }
 
