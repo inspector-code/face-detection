@@ -1,3 +1,7 @@
+body {
+    text-align: center;
+}
+
 canvas {
     display: none;
     transform: scale(-1, 1);
@@ -9,49 +13,60 @@ video {
 
 #face-detector {
     position: relative;
+    margin: 0 auto;
+    width: fit-content;
     display: flex;
     justify-content: center;
     align-items: center;
-}
+    flex-direction: column;
 
-#videoMask {
-    position: absolute;
-    width: 250px;
-    height: 320px;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
-    border-radius: 420px/320px;
-    border:  4px dotted #7e53b9;
-    z-index: 1000;
+    button {
+        display: none;
+        justify-content: center;
+        align-items: center;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 20px;
+        background: #7e53b9;
+        color: white;
+        cursor: pointer;
+        margin: 20px;
+
+        &:hover {
+            background: #794bba;
+        }
+
+        &:active {
+            background: #7547b5;
+        }
+    }
 
     p {
         text-align: center;
         position: absolute;
-        top: 102%;
+        top: 85%;
         left: 50%;
         transform: translate(-50%);
         font-size: 1.5rem;
         font-weight: bold;
         color: #7e53b9;
+        z-index: 1000;
     }
 
-    &:before {
-        content: url(../img/regula.png);
+    #videoMask {
+        position: absolute;
+        width: 250px;
+        height: 320px;
+        border-radius: 420px/320px;
+        border:  4px dotted #7e53b9;
+        z-index: 1000;
+    }
+
+    #logo {
         display: block;
         position: absolute;
-        top: -70px;
-        left: -180px;
-        font-weight: bold;
-        color: #7e53b9;
-    }
-
-    &:after {
-        content: 'Put your face into the frame';
-        position: absolute;
-        top: -30px;
-        right: 30px;
-        font-weight: bold;
-        color: #7e53b9;
+        top: 20px;
+        left: 20px;
+        z-index: 1000;
     }
 }
