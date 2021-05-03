@@ -1,7 +1,8 @@
 class FaceDetector {
-  constructor(canvas, parentNode) {
+  constructor(canvas, parentNode, ctx) {
     this.isCaptured = false;
     this.canvas = canvas;
+    this.ctx = ctx;
     this.parentNode = parentNode;
     this.tips = document.createElement('p');
     this.tips.innerText = 'Put your face in the zone';
@@ -20,6 +21,12 @@ class FaceDetector {
         const normalSize = (d > 267) && (d < 273);
         const smallSize = d < 267;
         const bigSize = d > 273;
+
+        this.ctx.beginPath();
+        this.ctx.arc(detections[i][1], detections[i][0], detections[i][2]/2, 0, 2*Math.PI, false);
+        this.ctx.lineWidth = 3;
+        this.ctx.strokeStyle = 'red';
+        this.ctx.stroke();
 
         if (isCentered && normalSize) {
           if (!this.isCaptured) {

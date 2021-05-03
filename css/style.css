@@ -2,7 +2,6 @@ body {
   text-align: center; }
 
 canvas {
-  display: none;
   transform: scale(-1, 1); }
 
 video {
